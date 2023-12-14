@@ -109,7 +109,7 @@ def main():
         "-c",
         dest="continue_",
         action="store_true",
-        help="(file only) resume getting a partially-downloaded file",
+        help="resume getting partially-downloaded files",
     )
     parser.add_argument(
         "--folder",
@@ -166,6 +166,7 @@ def main():
                 use_cookies=not args.no_cookies,
                 verify=not args.no_check_certificate,
                 remaining_ok=args.remaining_ok,
+                resume=args.continue_,
             )
         else:
             download(
