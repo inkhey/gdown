@@ -229,6 +229,10 @@ def download_folder(
         Either a bool, in which case it controls whether the server's TLS
         certificate is verified, or a string, in which case it must be a path
         to a CA bundle to use. Default is True.
+    resume: bool
+        Resume interrupted transfers. Completed output files will be
+        skipped. Partial tempfiles will be reused, if the transfer is
+        incomplete. Default is False.
 
     Returns
     -------
@@ -281,6 +285,17 @@ def download_folder(
         if file_id is None:  # folder
             if not osp.exists(file_path):
                 os.makedirs(file_path)
+            continue
+
+        # Output is always a path for folder mode.
+        # It makes sense to shortcut existing 100% transfers here
+        # instead of invoking download(), to avoid further requests.
+        assert file_path is not None
+        if resume and os.path.isfile(file_path):
+            # already downloaded this file
+            if not quiet:
+                print(f"resume: already have {file_path}")
+            filenames.append(file_path)
             continue
 
         filename = download(
